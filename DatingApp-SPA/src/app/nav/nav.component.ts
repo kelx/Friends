@@ -18,7 +18,7 @@ model: any = {};
     this.authService.login(this.model).subscribe(next => {
       console.log('logged in successfully');
     }, error => {
-      console.log('failed to log in');
+      console.log(error);
     });
   }
   loggedIn() {
