@@ -10,15 +10,28 @@ export class ErrorInterceptor implements HttpInterceptor {
     return next.handle(req).pipe(
       catchError(error => {
         if (error instanceof HttpErrorResponse) {
-          if(error.status === 401) {
+          if (error.status === 401) {
             return throwError(error.statusText);
           }
+          // if (error.status === 400) {
+          //   const badRequest = error.error;
+          //   console.log(badRequest);
+          //   let badRequestError = '';
+          //   if (badRequest) {
+          //     for (const key in badRequest) {
+          //       if (badRequest[key]) {
+          //         badRequestError += badRequest[key] + '\n';
+          //       }
+          //     }
+          //   }
+          //   return throwError (badRequestError || badRequest);
+          // }
           const applicationError = error.headers.get('Application-Error');
           if (applicationError) {
             console.error(applicationError);
             return throwError(applicationError);
           }
-          const serverError = error.error;
+          const serverError = error.error['errors'];
           let modalStateErrors = '';
           if (serverError && typeof serverError === 'object') {
             for (const key in serverError) {
