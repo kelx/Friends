@@ -13,6 +13,9 @@ export class ErrorInterceptor implements HttpInterceptor {
           if (error.status === 401) {
             return throwError(error.statusText);
           }
+          if (error.status === 400) {
+            return throwError(error.error);
+          }
           // if (error.status === 400) {
           //   const badRequest = error.error;
           //   console.log(badRequest);
