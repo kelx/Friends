@@ -13,22 +13,23 @@ export class ErrorInterceptor implements HttpInterceptor {
           if (error.status === 401) {
             return throwError(error.statusText);
           }
-          if (error.status === 400) {
-            return throwError(error.error);
-          }
           // if (error.status === 400) {
-          //   const badRequest = error.error;
-          //   console.log(badRequest);
-          //   let badRequestError = '';
-          //   if (badRequest) {
-          //     for (const key in badRequest) {
-          //       if (badRequest[key]) {
-          //         badRequestError += badRequest[key] + '\n';
-          //       }
-          //     }
-          //   }
-          //   return throwError (badRequestError || badRequest);
+          //   console.log(error.error);
+          //   return throwError(error.error);
           // }
+          if (error.status === 400) {
+            const badRequest = error.error;
+            console.log(badRequest);
+            let badRequestError = '';
+            if (badRequest) {
+              for (const key in badRequest) {
+                if (badRequest[key]) {
+                  badRequestError += badRequest[key].description + '\n';
+                }
+              }
+            }
+            return throwError (badRequestError || badRequest);
+          }
           const applicationError = error.headers.get('Application-Error');
           if (applicationError) {
             console.error(applicationError);

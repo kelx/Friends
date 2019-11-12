@@ -14,7 +14,7 @@ using Microsoft.Extensions.Options;
 
 namespace MyFriendsApp.API.Controllers
 {
-    [Authorize]
+    //[Authorize] Authorization implemented globally in startup
     [Route("api/users/{userId}/photos")]
     [ApiController]
     public class PhotosController : ControllerBase

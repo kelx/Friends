@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace MyFriendsApp.API.Controllers
 {
     [ServiceFilter(typeof(LogUserActivity))]
-    [Authorize]
+    //[Authorize] authorization implemented globally in startup
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
