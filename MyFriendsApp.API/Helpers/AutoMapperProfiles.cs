@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using MyFriendsApp.API.DTOs;
@@ -12,6 +13,9 @@ namespace MyFriendsApp.API.Helpers
             CreateMap<User, UserForListDto>()
             .ForMember(dest => dest.PhotoUrl, opt => {
                 opt.MapFrom(src => src.Photos.FirstOrDefault(p => p.IsMain).Url);
+            })
+            .ForMember(dest => dest.MyGroups, opt => {
+                opt.MapFrom(src => src.UserGroups.Select(p => p.GroupId.ToString()).ToList());
             })
             .ForMember(dest => dest.Age, opt => {
                 opt.ResolveUsing(k => k.DateOfBirth.CalculateAge());
@@ -37,6 +41,7 @@ namespace MyFriendsApp.API.Helpers
                 .ForMember(m => m.RecipientPhotoUrl, opt => opt.MapFrom(p => 
                          p.Recipient.Photos.FirstOrDefault(k => k.IsMain).Url));
         }
+       
         
     }
 }

@@ -3,20 +3,51 @@
     <a class="navbar-brand" [routerLink]="loggedIn() ? ['/members'] : ['/home']">MyFriends App</a>
 
 
-    <ul *ngIf="loggedIn()" class="navbar-nav mr-auto">
-      <li class="nav-item" routerLinkActive="active" >
-        <a class="nav-link" [routerLink]="['/members']" >Friends </a>
+    <ul *ngIf="loggedIn()" class="navbar-nav mt-auto mr-auto">
+      <li class="nav-item" routerLinkActive="active">
+        <a class="nav-link" [routerLink]="['/members']">Friends </a>
       </li>
       <li class="nav-item" routerLinkActive="active">
-        <a class="nav-link" [routerLink]="['/lists']" >Lists</a>
+        <a class="nav-link" [routerLink]="['/lists']">Lists</a>
       </li>
       <li class="nav-item" routerLinkActive="active">
-        <a class="nav-link" [routerLink]="['/messages']" >Messages</a>
+        <a class="nav-link" [routerLink]="['/messages']">Messages</a>
       </li>
       <li *appHasRole="['Admin', 'Moderator']" class="nav-item" routerLinkActive="active">
-        <a class="nav-link" [routerLink]="['/admin']" >Admin</a>
+        <a class="nav-link" [routerLink]="['/admin']">Admin</a>
       </li>
+      <div class="btn-group" dropdown>
+        <button id="button-basic" dropdownToggle type="button" class="btn btn-primary dropdown-toggle"
+          aria-controls="dropdown-basic">
+          My Groups <span class="caret"></span>
+        </button>
+        <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu" role="menu" aria-labelledby="button-basic">
+          <div *appHasRole="['_Gp_Admin', '_Gp_Moderator', '_Gp_Member', '_Gp_VIP']">
+            <li *ngFor="let myg of myGroups" role="menuitem"><a class="dropdown-item fa fa-group"
+                [routerLink]="['groups/group']">{{myg}}</a></li>
+            <li class="divider dropdown-divider"></li>
+          </div>
+          <li role="menuitem"><a class="dropdown-item" [routerLink]="['/groups/creategroup']"><i
+                class="fa fa-user-plus"></i> Create a Group</a>
+          </li>
+        </ul>
+      </div>
+      <!-- <div class="dropdown" dropdown>
+        <a class="dropdown-toggle mt-auto text-light" dropdownToggle>My Groups</a>
+        <div class="dropdown-menu mt-3" *dropdownMenu>
+          <div class="div dropdown-divider"></div>
+          <div *appHasRole="['_Gp_Admin', '_Gp_Moderator', '_Gp_Member', '_Gp_VIP']">
+            <a *ngFor="let myg of myGroups" class="dropdown-item fa fa-group" [routerLink]="['groups/group']">
+              {{myg}}</a>
+          </div>
+          <div class="div dropdown-divider"></div>
+          <a class="dropdown-item" [routerLink]="['/groups/creategroup']"><i class="fa fa-user-plus"></i> Create a
+            Group</a>
+          <div class="div dropdown-divider"></div>
+        </div>
+      </div> -->
     </ul>
+
 
     <div *ngIf="loggedIn()" class="dropdown" dropdown>
       <span class="mr-1">
@@ -27,7 +58,7 @@
       </a>
 
       <div class="dropdown-menu mt-3" *dropdownMenu>
-        <a class="dropdown-item" [routerLink]="['/member/edit']" ><i class="fa fa-user"></i> Edit profile</a>
+        <a class="dropdown-item" [routerLink]="['/member/edit']"><i class="fa fa-user"></i> Edit profile</a>
         <div class="div dropdown-divider"></div>
         <a class="dropdown-item" (click)="logOut()"><i class="fa fa-sign-out"></i> Log out</a>
       </div>
@@ -42,4 +73,3 @@
     </form>
   </div>
 </nav>
-

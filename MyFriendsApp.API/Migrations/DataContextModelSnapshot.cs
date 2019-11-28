@@ -84,6 +84,22 @@ namespace MyFriendsApp.API.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("MyFriendsApp.API.Models.Group", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Name");
+
+                    b.Property<int?>("UserId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Groups");
+                });
+
             modelBuilder.Entity("MyFriendsApp.API.Models.Like", b =>
                 {
                     b.Property<int>("LikerId");
@@ -174,6 +190,21 @@ namespace MyFriendsApp.API.Migrations
                     b.ToTable("AspNetRoles");
                 });
 
+            modelBuilder.Entity("MyFriendsApp.API.Models.RoleGroup", b =>
+                {
+                    b.Property<int>("RoleId");
+
+                    b.Property<int>("GroupId");
+
+                    b.Property<int>("UserId");
+
+                    b.HasKey("RoleId", "GroupId", "UserId");
+
+                    b.HasIndex("GroupId");
+
+                    b.ToTable("RoleGroups");
+                });
+
             modelBuilder.Entity("MyFriendsApp.API.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -244,6 +275,19 @@ namespace MyFriendsApp.API.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
+            modelBuilder.Entity("MyFriendsApp.API.Models.UserGroup", b =>
+                {
+                    b.Property<int>("UserId");
+
+                    b.Property<int>("GroupId");
+
+                    b.HasKey("UserId", "GroupId");
+
+                    b.HasIndex("GroupId");
+
+                    b.ToTable("UserGroups");
+                });
+
             modelBuilder.Entity("MyFriendsApp.API.Models.UserRole", b =>
                 {
                     b.Property<int>("UserId");
@@ -301,6 +345,13 @@ namespace MyFriendsApp.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
+            modelBuilder.Entity("MyFriendsApp.API.Models.Group", b =>
+                {
+                    b.HasOne("MyFriendsApp.API.Models.User")
+                        .WithMany("Groups")
+                        .HasForeignKey("UserId");
+                });
+
             modelBuilder.Entity("MyFriendsApp.API.Models.Like", b =>
                 {
                     b.HasOne("MyFriendsApp.API.Models.User", "Likee")
@@ -333,6 +384,32 @@ namespace MyFriendsApp.API.Migrations
                         .WithMany("Photos")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("MyFriendsApp.API.Models.RoleGroup", b =>
+                {
+                    b.HasOne("MyFriendsApp.API.Models.Group", "Group")
+                        .WithMany("GroupRoles")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("MyFriendsApp.API.Models.Role", "Role")
+                        .WithMany("RoleGroups")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("MyFriendsApp.API.Models.UserGroup", b =>
+                {
+                    b.HasOne("MyFriendsApp.API.Models.Group", "Group")
+                        .WithMany("GroupUsers")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("MyFriendsApp.API.Models.User", "User")
+                        .WithMany("UserGroups")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("MyFriendsApp.API.Models.UserRole", b =>

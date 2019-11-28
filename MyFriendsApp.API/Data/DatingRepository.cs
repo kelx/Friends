@@ -53,7 +53,12 @@ namespace MyFriendsApp.API.Data
             var user = await _context.Users.Include(p => p.Photos).FirstOrDefaultAsync(k => k.Id == id);
             return user;
         }
-
+        public async Task<IEnumerable<User>> GetUsers(int userId)
+        {
+            var users = await  _context.Users.Include(p => p.Photos)
+                            .Where(kkk => kkk.Id != userId).ToListAsync();
+            return users;
+        }
         public async Task<PagedList<User>> GetUsers(UserParams userParams)
         {
             var users = _context.Users.Include(p => p.Photos)

@@ -39,6 +39,9 @@ import { UserManagementComponent } from './admin/user-management/user-management
 import { PhotoManagementComponent } from './admin/photo-management/photo-management.component';
 import { AdminService } from './_services/admin.service';
 import { RolesModalComponent } from './admin/roles-modal/roles-modal.component';
+import { GroupComponent } from './Groups/group/group.component';
+import { CreateGroupComponent } from './Groups/create-group/create-group.component';
+import { GroupMemberCardComponent } from './Groups/group-member-card/group-member-card.component';
 
 
 
@@ -65,7 +68,10 @@ export function tokenGetter() {
       HasRoleDirective,
       UserManagementComponent,
       PhotoManagementComponent,
-      RolesModalComponent
+      RolesModalComponent,
+      GroupComponent,
+      CreateGroupComponent,
+      GroupMemberCardComponent
    ],
    imports: [
       BrowserModule,

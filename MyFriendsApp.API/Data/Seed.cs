@@ -10,9 +10,11 @@ namespace MyFriendsApp.API.Data
     {
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<Role> _roleManager;
+        private readonly DataContext _dbcontext;
 
-        public Seed(UserManager<User> userManager, RoleManager<Role> roleManager)
+        public Seed(UserManager<User> userManager, RoleManager<Role> roleManager, DataContext dbcontext)
         {
+            _dbcontext = dbcontext;
             _userManager = userManager;
             _roleManager = roleManager;
         }
@@ -24,17 +26,28 @@ namespace MyFriendsApp.API.Data
                 var userData = System.IO.File.ReadAllText("Data/UserSeedData.json");
                 var users = JsonConvert.DeserializeObject<List<User>>(userData);
 
-                var roles = new List<Role> 
+                var roles = new List<Role>
                 {
                     new Role {Name = "Member"},
                     new Role {Name = "Admin"},
                     new Role {Name = "Moderator"},
-                    new Role {Name = "VIP"}
+                    new Role {Name = "VIP"},
+                    new Role {Name = "_Gp_Member"},
+                    new Role {Name = "_Gp_Admin"},
+                    new Role {Name = "_Gp_Moderator"},
+                    new Role {Name = "_Gp_VIP"}
                 };
-                foreach(var role in roles)
+                foreach (var role in roles)
                 {
                     _roleManager.CreateAsync(role).Wait();
                 }
+
+                var groups = new List<Group>
+                {
+                    new Group {Name = "Family"},
+                    new Group {Name = "Friends"}
+                };
+
 
                 foreach (var user in users)
                 {
@@ -43,8 +56,15 @@ namespace MyFriendsApp.API.Data
                 }
 
                 var admin = _userManager.FindByNameAsync("kelmen").Result;
-                _userManager.AddToRolesAsync(admin, new [] {"Admin", "Moderator" }).Wait();
+                _userManager.AddToRolesAsync(admin, new[] { "Admin", "Moderator" }).Wait();
                 
+                foreach(var gr in groups)
+                {
+                   _dbcontext.Groups.Add(gr);
+                }
+                _dbcontext.SaveChanges();
+
+
             }
         }
 

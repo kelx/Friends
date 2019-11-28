@@ -98,6 +98,7 @@ namespace MyFriendsApp.API
                 opt.AddPolicy("RequireAdminRole", pol => pol.RequireRole("Admin"));
                 opt.AddPolicy("ModeratePhotoRole", pol => pol.RequireRole("Admin", "Moderator"));
                 opt.AddPolicy("VipOnly", pol => pol.RequireRole("VIP"));
+                opt.AddPolicy("GroupMembers", pol => pol.RequireRole("Admin", "_Gp_Admin", "_Gp_Member", "_Gp_Moderator", "_Gp_VIP"));
             });
 
             services.AddMvc(opt => {
@@ -117,6 +118,7 @@ namespace MyFriendsApp.API
             services.AddTransient<Seed>();
             
             services.AddScoped<IDatingRepository, DatingRepository>();
+            services.AddScoped<IGroupRepository, GroupRepository>();
             
             services.AddScoped<LogUserActivity>();
         }

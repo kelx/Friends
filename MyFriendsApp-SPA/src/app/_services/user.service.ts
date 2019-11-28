@@ -6,6 +6,7 @@ import { User } from '../_models/user';
 import { PaginatedResult } from '../_models/pagination';
 import { map } from 'rxjs/operators';
 import { Message } from '../_models/message';
+import { CreateGroup } from '../_models/createGroup';
 
 // const httpOptions = {
 //   headers: new HttpHeaders({
@@ -21,6 +22,10 @@ export class UserService {
   baseUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
+
+  groupGetAllUsers() {
+    return this.http.get(this.baseUrl + 'users/getAllUsers');
+  }
 
   getUsers(page?, itemsPerPage?, userParams?, likesParams?): Observable<PaginatedResult<User[]>> {
     const paginatedResult: PaginatedResult<User[]> = new PaginatedResult<User[]>();
@@ -106,5 +111,8 @@ export class UserService {
   markMessageAsRead(userId: number, messageId: number) {
     this.http.post(this.baseUrl + 'users/' + userId + '/messages/' + messageId + '/read', {})
       .subscribe();
+  }
+  createGroupWithUsers(createGroup: CreateGroup) {
+    return this.http.post(this.baseUrl + 'GroupAdmin/createGroupWithUsers', createGroup);
   }
 }

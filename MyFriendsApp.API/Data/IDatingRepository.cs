@@ -12,6 +12,7 @@ namespace MyFriendsApp.API.Data
          void Update<T>(T entity) where T: class;
         Task<bool> SaveAll();
         Task<PagedList<User>> GetUsers(UserParams userParams);
+        Task <IEnumerable<User>> GetUsers(int userId);
         Task<User> GetUser(int id);
 
         Task<Photo> GetPhoto(int id);

@@ -26,12 +26,14 @@ namespace MyFriendsApp.API.Controllers
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly DataContext _context;
 
-        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager,
-         IConfiguration config, IMapper mapper)
+        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, 
+            DataContext context, IConfiguration config, IMapper mapper)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _context = context;
             _config = config;
             _mapper = mapper;
 
@@ -66,11 +68,29 @@ namespace MyFriendsApp.API.Controllers
 
             if(result.Succeeded)
             {
-                var appUser = await _userManager.Users.Include(k => k.Photos)
+                var appUser = await _userManager.Users
+                    .Include(k => k.Photos)
+                    .Include(k => k.UserGroups)
                     .FirstOrDefaultAsync(p => p.NormalizedUserName == userForLoginDto.Username.ToUpper());
                 
+                var groups = _context.Groups;
                 var userToReturn = _mapper.Map<UserForListDto>(appUser);
-
+                List<string> groupList = new List<string>();
+                groupList = (List<string>)userToReturn.MyGroups;
+                if (groupList.Count > 0)
+                {
+                    foreach (var id in groups)
+                    {
+                        for (int i = 0; i < groupList.Count; i++)
+                        {
+                            if (groupList[i] == id.Id.ToString())
+                            {
+                                groupList[i] = id.Name;
+                            }
+                        }
+                    }
+                }
+                userToReturn.MyGroups = groupList;
                 return Ok(new
                 {
                     token = GenerateJwtToken(appUser).Result,
@@ -88,6 +108,7 @@ namespace MyFriendsApp.API.Controllers
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.UserName)
+                
             };
 
             var roles = await _userManager.GetRolesAsync(user);

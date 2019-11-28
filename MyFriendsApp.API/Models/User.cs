@@ -22,5 +22,7 @@ namespace MyFriendsApp.API.Models
         public ICollection<Message> MessagesSent { get; set; }
         public ICollection<Message> MessagesReceived { get; set; }
         public ICollection<UserRole> UserRoles { get; set; }
+        public ICollection<Group> Groups { get; set; }
+        public ICollection<UserGroup> UserGroups { get; set; }
     }
 }

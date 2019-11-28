@@ -11,17 +11,20 @@ import { Router } from '@angular/router';
 export class NavComponent implements OnInit {
 model: any = {};
 photoUrl: string;
+myGroups: string[] = [];
 
   constructor(private authService: AuthService, private alertify: AlertifyService,
               private router: Router) { }
 
   ngOnInit() {
     this.authService.photoUrl.subscribe(pUrl => this.photoUrl = pUrl);
+    // this.authService.currentMyGroups.subscribe(pGrp => this.myGroups = pGrp);
   }
 
   login() {
     this.authService.login(this.model).subscribe(next => {
       this.alertify.success('logged in successfully');
+      this.myGroups = JSON.parse(localStorage.getItem('user')).myGroups;
     }, error => {
       this.alertify.error(error);
     }, () => {
@@ -29,6 +32,13 @@ photoUrl: string;
     });
   }
   loggedIn() {
+    if (this.authService.loggedIn()) {
+      if (this.myGroups.length < 1 || this.myGroups === undefined) {
+        if (JSON.parse(localStorage.getItem('user'))) {
+          this.myGroups = JSON.parse(localStorage.getItem('user')).myGroups;
+        }
+      }
+    }
     return this.authService.loggedIn();
   }
   logOut() {

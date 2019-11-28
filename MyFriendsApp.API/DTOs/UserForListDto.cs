@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace MyFriendsApp.API.DTOs
 {
@@ -14,5 +15,6 @@ namespace MyFriendsApp.API.DTOs
         public string City { get; set; }
         public string Country { get; set; }
         public string PhotoUrl { get; set; }
+        public ICollection<string> MyGroups { get; set; }
     }
 }

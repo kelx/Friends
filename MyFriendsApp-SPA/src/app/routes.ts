@@ -13,6 +13,8 @@ import { PreventUnsavedChanges } from './_guards/prevent-unsaved-changes.guard';
 import { ListsResolver } from './_resolvers/lists.resolver';
 import { MessagesResolver } from './_resolvers/messages.resolver';
 import { AdminPanelComponent } from './admin/admin-panel/admin-panel.component';
+import { GroupComponent } from './Groups/group/group.component';
+import { CreateGroupComponent } from './Groups/create-group/create-group.component';
 
 
 export const appRoutes: Routes = [
@@ -34,7 +36,9 @@ export const appRoutes: Routes = [
         resolve: {user: MemberEditResolver}, canDeactivate: [PreventUnsavedChanges] },
       { path: 'messages', component: MessagesComponent, resolve: {messages: MessagesResolver} },
       { path: 'lists', component: ListsComponent, resolve: {users: ListsResolver} },
-      { path: 'admin', component: AdminPanelComponent, data: {roles: ['Admin', 'Moderator']} }
+      { path: 'admin', component: AdminPanelComponent, data: {roles: ['Admin', 'Moderator']} },
+      { path: 'groups/group', component: GroupComponent, data: {roles: ['_Gp_Admin', '_Gp_Moderator', '_Gp_Member', '_Gp_VIP']} },
+      { path: 'groups/creategroup', component: CreateGroupComponent, resolve: {users: ListsResolver}}
     ]
   },
   { path: '**', redirectTo: '', pathMatch: 'full' }
