@@ -47,10 +47,10 @@ namespace MyFriendsApp.API.Data
         throw new System.NotImplementedException();
     }
 
-    public async Task<Group> CreateUserGroupnUserRole(User user, string groupName, bool IshallBeGpAdmin)
+    public async Task<bool> CreateUserGroupnUserRole(User user, string groupName, bool IshallBeGpAdmin)
     {
         Group grp = new Group();
-        grp.Name = groupName;
+        
 
         //check if group already exists
         bool grpAlreadyExist = _dataContext.Groups.Any(kk =>kk.Name == groupName);
@@ -59,7 +59,10 @@ namespace MyFriendsApp.API.Data
         {
             grp = await _dataContext.Groups.FirstOrDefaultAsync(kk => kk.Name == groupName);
             //return grp;
+        } else {
+            grp.Name = groupName;
         }
+
         // add user to groups
         // create User Group and then add to group
 
@@ -123,7 +126,7 @@ namespace MyFriendsApp.API.Data
         _userManager.UpdateAsync(user).Wait();
         
         
-        return grp;
+        return true;
     }
 
     public async Task<IEnumerable<Group>> GetUserGroupsAsync(int id)
@@ -210,6 +213,41 @@ namespace MyFriendsApp.API.Data
             return group;
         }
         return null;
+        }
+
+        public async Task<bool> CheckUserInGroup(int id, string groupName)
+        {
+            var appUser = await _userManager.Users
+                    .Include(k => k.UserGroups).ThenInclude(kk => kk.Group)
+                    .FirstOrDefaultAsync(kk => kk.Id == id);
+            
+            //get group name from groups
+            var userHasGroups = appUser.UserGroups;
+            
+            // check if currently LoggedIn User already a member of the group
+            bool isCurrentlyLoggedinUserAMemberAlready = userHasGroups.Any(k => k.Group.Name == groupName);
+            
+            return isCurrentlyLoggedinUserAMemberAlready;
+
+        }
+
+        public async Task<int> CheckUserRoleInGroup(int id, string groupName)
+        {
+            var appUser = await _userManager.Users
+                    .Include(k => k.UserGroups).ThenInclude(kk => kk.Group).ThenInclude(kk => kk.GroupRoles)
+                    .FirstOrDefaultAsync(kk => kk.Id == id);
+            
+            //get group name from groups
+            var userHasGroups = appUser.UserGroups;
+            
+            // check if currently LoggedIn User already a member of the group
+            var group = userHasGroups.FirstOrDefault(k => k.Group.Name == groupName);
+            return group.Group.GroupRoles.Where(k => k.UserId == id).FirstOrDefault().RoleId;
+            // foreach(var k in group.Group.GroupRoles.Where(k => k.UserId == id))
+            // {
+            //     res = k.RoleId;
+            // }
+
         }
     }
 }

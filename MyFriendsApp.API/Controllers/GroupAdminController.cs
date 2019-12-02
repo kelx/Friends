@@ -110,6 +110,31 @@ namespace MyFriendsApp.API.Controllers
             return grp;
         }
 
+        [HttpGet("checkUserInGroup/{id}/{groupName}")]
+        public async Task<IActionResult> CheckUserInGroup(int id, string groupName)
+        {
+            
+           bool  isCurrentlUserAMemberAlready = await _groupRepo.CheckUserInGroup(id, groupName);
+            
+
+            if(isCurrentlUserAMemberAlready)
+                return Ok("User in group!");
+
+            return BadRequest("User not in group");
+
+        }
+        [HttpGet("checkUserRoleInGroup/{id}/{groupName}")]
+        public async Task<IActionResult> CheckUserRoleInGroup(int id, string groupName)
+        {
+            
+            int res = await _groupRepo.CheckUserRoleInGroup(id, groupName);
+            return Ok(res);
+
+
+        }
+
+
+
         [HttpPost("createGroupWithUsers")]
         public async Task<IActionResult> CreateGroupWithUsers([FromBody]GroupCreateDto groupCreateDto)
         {
@@ -118,75 +143,44 @@ namespace MyFriendsApp.API.Controllers
                 return Unauthorized();
             var user = await _userManager.FindByIdAsync(groupCreateDto.UserId.ToString());
             if (user == null)
-                return BadRequest("User doesnt  exist");
+                return BadRequest("User doesnt exist");
 
-            var appUser = await _userManager.Users
-                    .Include(k => k.UserGroups)
-                    .Include(k => k.Groups)
-                    .FirstOrDefaultAsync(kk => kk.Id == loggedInUserId);
             
+            
+            // check if currently LoggedIn User already a member of the group
 
-            //get group name from groups
-            var userHasGroups = appUser.UserGroups;
-            
+            bool isCurrentlyLoggedinUserAMemberAlready = await _groupRepo.CheckUserInGroup(user.Id, groupCreateDto.GroupName);
+
 
             //check here if mentioned group has already in userHasGroups
             // if so do everything other than creating group.
 
-            if (userHasGroups.Count == 0)
+            if (!isCurrentlyLoggedinUserAMemberAlready)
             {
                 // first step create group
                 var group = await _groupRepo.CreateUserGroupnUserRole(user, groupCreateDto.GroupName, true);
-                return Ok("Group created successfully");
+                if(!group)
+                    return BadRequest("Failed to create group");
                 // then create UserGroup
-            }else {
-                    var userGroups = await _groupRepo.GetUserGroupsAsync(loggedInUserId);
-                    var myGroup = userGroups.FirstOrDefault(k => k.Name == groupCreateDto.GroupName);
-                if (myGroup.Name == groupCreateDto.GroupName)
-                {
-                    // logged in user already in group so no further action required
-                    // add group members
-
-                    foreach (var id in groupCreateDto.GroupMembers)
-                    {
-                        var userMember = await _userManager.Users
-                                                .Include(k => k.UserGroups)
-                                                .Include(k => k.Groups)
-                                                .FirstOrDefaultAsync(kk => kk.Id == int.Parse(id));
-                        var grp = _groupRepo.CreateUserGroupnUserRole(userMember, groupCreateDto.GroupName, false);
-                    }
-
-                    // Group newGroup = await _groupRepo.AddUsersToGroup(user, newGroup, groupCreateDto.GroupMembers);
-                }
-                        
-                        
             }
 
-            // var userGroups = await _groupRepo.GetUserGroupsAsync(loggedInUserId);
+            // add group members
 
+            foreach (var id in groupCreateDto.GroupMembers)
+            {
+                var userMember = await _userManager.Users
+                                .FirstOrDefaultAsync(kk => kk.Id == int.Parse(id));
 
-            // var checkIfUserGroupAlreadyExist = userGroups.Any(k => k.Name == groupCreateDto.GroupName);
-            // //var grp = user.Include(k => k.UserGroups)
+                bool isMemberAlready = await _groupRepo.CheckUserInGroup(userMember.Id, groupCreateDto.GroupName);
+                if(!isMemberAlready)
+                {
+                   var group = await _groupRepo.CreateUserGroupnUserRole(userMember, groupCreateDto.GroupName, false);
+                   if(!group)
+                    return BadRequest("Failed to create members in group");
+                }
+            }
 
-            // var newGroup = new Group();
-            // if (!checkIfUserGroupAlreadyExist)
-            //     newGroup = await _groupRepo.CreateGroup(groupCreateDto.GroupName);
-            // else
-            //     newGroup = userGroups.FirstOrDefault(k => k.Name == groupCreateDto.GroupName);
-
-
-
-
-
-
-            // // add users to group
-            // newGroup = await _groupRepo.AddUsersToGroup(user, newGroup, groupCreateDto.GroupMembers);
-
-            // if (newGroup != null)
-            // {
-            //     return Ok(newGroup);
-            // }
-            return BadRequest("Failed to Save");
+            return Ok("Created all successfully");
         }
         [Authorize(Policy = "RequireAdminRole")]
         [HttpPost("addUserToGroup/{userName}/{groupName}")]

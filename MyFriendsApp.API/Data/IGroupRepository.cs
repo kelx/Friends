@@ -12,7 +12,9 @@ namespace MyFriendsApp.API.Data
          void Update<T>(T entity) where T: class;
         Task<bool> SaveAll();
         Task<Group> GetGroup(int groupId);
-        Task<Group> CreateUserGroupnUserRole(User user, string groupName, bool iShallbeAdmin);
+        Task<bool> CheckUserInGroup(int id, string groupName);
+        Task<int> CheckUserRoleInGroup(int id, string groupName);
+        Task<bool> CreateUserGroupnUserRole(User user, string groupName, bool iShallbeAdmin);
         Task<IEnumerable<Group>> GetUserGroupsAsync(int id);
         Task<Group> AddUsersToGroup(User user, Group group, ICollection<string> groupMembers);
     }

@@ -9,8 +9,8 @@ using MyFriendsApp.API.Data;
 namespace MyFriendsApp.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20191127090949_RoleGroupUserIdAdded")]
-    partial class RoleGroupUserIdAdded
+    [Migration("20191128185147_Intitial")]
+    partial class Intitial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

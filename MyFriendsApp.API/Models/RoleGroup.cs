@@ -7,6 +7,6 @@ namespace MyFriendsApp.API.Models
         public int UserId { get; set; }
         public Role Role { get; set; }
         public Group Group { get; set; }
-        //public User User {get; set;}
+       // public User User {get; set;}
     }
 }
