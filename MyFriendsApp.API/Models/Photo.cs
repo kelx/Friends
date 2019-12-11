@@ -10,7 +10,9 @@ namespace MyFriendsApp.API.Models
         public DateTime DateAdded { get; set; }
         public bool IsMain { get; set; }
         public string PublicId { get; set; }
-        public User user { get; set; }
+        public User User { get; set; }
         public int UserId { get; set; }
+        //public Group Group {get; set;}
+        public int GroupId { get; set; }
     }
 }

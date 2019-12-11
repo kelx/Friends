@@ -19,12 +19,12 @@
       <div class="btn-group" dropdown>
         <button id="button-basic" dropdownToggle type="button" class="btn btn-primary dropdown-toggle"
           aria-controls="dropdown-basic">
-          My Groups <span class="caret"></span>
+          {{currentGroup | titlecase}}<span class="caret"></span>
         </button>
         <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu" role="menu" aria-labelledby="button-basic">
           <div *appHasRole="['_Gp_Admin', '_Gp_Moderator', '_Gp_Member', '_Gp_VIP']">
             <li *ngFor="let myg of myGroups" role="menuitem"><a class="dropdown-item fa fa-group"
-                [routerLink]="['groups/group']">{{myg}}</a></li>
+                [routerLink]="['groups/group']" (click)="changeGroupHeading(myg)">{{myg}}</a></li>
             <li class="divider dropdown-divider"></li>
           </div>
           <li role="menuitem"><a class="dropdown-item" [routerLink]="['/groups/creategroup']"><i

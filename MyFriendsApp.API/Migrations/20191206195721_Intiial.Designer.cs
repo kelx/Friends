@@ -9,8 +9,8 @@ using MyFriendsApp.API.Data;
 namespace MyFriendsApp.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20191128185147_Intitial")]
-    partial class Intitial
+    [Migration("20191206195721_Intiial")]
+    partial class Intiial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -124,6 +124,8 @@ namespace MyFriendsApp.API.Migrations
 
                     b.Property<DateTime?>("DateRead");
 
+                    b.Property<int?>("GroupMessageId");
+
                     b.Property<bool>("IsRead");
 
                     b.Property<DateTime>("MessageSent");
@@ -137,6 +139,8 @@ namespace MyFriendsApp.API.Migrations
                     b.Property<int>("SenderId");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("GroupMessageId");
 
                     b.HasIndex("RecipientId");
 
@@ -369,6 +373,11 @@ namespace MyFriendsApp.API.Migrations
 
             modelBuilder.Entity("MyFriendsApp.API.Models.Message", b =>
                 {
+                    b.HasOne("MyFriendsApp.API.Models.Group", "GroupMessage")
+                        .WithMany("GroupMessages")
+                        .HasForeignKey("GroupMessageId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("MyFriendsApp.API.Models.User", "Recipient")
                         .WithMany("MessagesReceived")
                         .HasForeignKey("RecipientId")

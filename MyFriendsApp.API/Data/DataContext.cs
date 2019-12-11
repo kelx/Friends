@@ -109,6 +109,10 @@ namespace MyFriendsApp.API.Data
             .HasOne(k => k.Recipient)
             .WithMany(k => k.MessagesReceived)
             .OnDelete(DeleteBehavior.Restrict);
+            builder.Entity<Message>()
+            .HasOne(k => k.GroupMessage)
+            .WithMany(k => k.GroupMessages)
+            .OnDelete(DeleteBehavior.Restrict);
 
         }
     }

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace MyFriendsApp.API.Migrations
 {
-    public partial class Intitial : Migration
+    public partial class Intiial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -222,38 +222,6 @@ namespace MyFriendsApp.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Messages",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    SenderId = table.Column<int>(nullable: false),
-                    RecipientId = table.Column<int>(nullable: false),
-                    Content = table.Column<string>(nullable: true),
-                    IsRead = table.Column<bool>(nullable: false),
-                    DateRead = table.Column<DateTime>(nullable: true),
-                    MessageSent = table.Column<DateTime>(nullable: false),
-                    SenderDeleted = table.Column<bool>(nullable: false),
-                    RecipientDeleted = table.Column<bool>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Messages", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Messages_AspNetUsers_RecipientId",
-                        column: x => x.RecipientId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Messages_AspNetUsers_SenderId",
-                        column: x => x.SenderId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Photos",
                 columns: table => new
                 {
@@ -275,6 +243,45 @@ namespace MyFriendsApp.API.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Messages",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    SenderId = table.Column<int>(nullable: false),
+                    RecipientId = table.Column<int>(nullable: false),
+                    GroupMessageId = table.Column<int>(nullable: true),
+                    Content = table.Column<string>(nullable: true),
+                    IsRead = table.Column<bool>(nullable: false),
+                    DateRead = table.Column<DateTime>(nullable: true),
+                    MessageSent = table.Column<DateTime>(nullable: false),
+                    SenderDeleted = table.Column<bool>(nullable: false),
+                    RecipientDeleted = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Messages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Messages_Groups_GroupMessageId",
+                        column: x => x.GroupMessageId,
+                        principalTable: "Groups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Messages_AspNetUsers_RecipientId",
+                        column: x => x.RecipientId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Messages_AspNetUsers_SenderId",
+                        column: x => x.SenderId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -372,6 +379,11 @@ namespace MyFriendsApp.API.Migrations
                 name: "IX_Likes_LikeeId",
                 table: "Likes",
                 column: "LikeeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Messages_GroupMessageId",
+                table: "Messages",
+                column: "GroupMessageId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Messages_RecipientId",

@@ -21,5 +21,6 @@ namespace MyFriendsApp.API.Data
         Task<Message> GetMessage(int id);
         Task<PagedList<Message>> GetMessagesForUser(MessageParams messageParams);
         Task<IEnumerable<Message>> GetMessagesThread(int userId, int recipientId);
+        Task<User> GetUserWithGroup(int userId, string groupName);
     }
 }

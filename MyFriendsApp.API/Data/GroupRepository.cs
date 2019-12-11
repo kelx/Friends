@@ -120,7 +120,7 @@ namespace MyFriendsApp.API.Data
         await _dataContext.SaveChangesAsync();
         user.UserGroups.Add(userGroup);
             
-        user.Groups.Add(grp);
+        //user.Groups.Add(grp);
             
         
         _userManager.UpdateAsync(user).Wait();
@@ -248,6 +248,11 @@ namespace MyFriendsApp.API.Data
             //     res = k.RoleId;
             // }
 
+        }
+
+        public int GetGroupId(string groupName)
+        {
+            return _dataContext.Groups.FirstOrDefault(k => k.Name == groupName).Id;
         }
     }
 }

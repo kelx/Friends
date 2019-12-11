@@ -22,11 +22,13 @@ namespace MyFriendsApp.API.Controllers
         private readonly IDatingRepository _repo;
         private readonly IMapper _mapper;
         private readonly IOptions<CloudinarySettings> _cloudinaryConfig;
+        private readonly IGroupRepository _groupRepo;
 
         private Cloudinary _cloudinary;
-        public PhotosController(IDatingRepository repo, IMapper mapper,
+        public PhotosController(IDatingRepository repo, IGroupRepository groupRepo, IMapper mapper,
             IOptions<CloudinarySettings> cloudinaryConfig)
         {
+            _groupRepo = groupRepo;
             _cloudinaryConfig = cloudinaryConfig;
             _mapper = mapper;
             _repo = repo;
@@ -47,6 +49,9 @@ namespace MyFriendsApp.API.Controllers
             var photo = _mapper.Map<PhotoForReturnDto>(photoFromRepo);
             return Ok(photo);
         }
+
+
+
         [HttpPost]
         public async Task<IActionResult> AddPhotoForUser(int userId,
                         [FromForm]PhotoForCreationDto photoForCreationDto)
@@ -89,11 +94,74 @@ namespace MyFriendsApp.API.Controllers
             if (await _repo.SaveAll())
             {
                 var photoToRetun = _mapper.Map<PhotoForReturnDto>(photo);
-                return CreatedAtRoute("GetPhoto", new {id = photo.Id}, photoToRetun);
+                return CreatedAtRoute("GetPhoto", new { id = photo.Id }, photoToRetun);
             }
 
             return BadRequest("Could not add the photo.");
         }
+
+        //testing purpose only
+        // [HttpGet("getGroupFromUser/{id}/{groupName}")]
+        // public async Task<User> GetGroupFromUser(int id, string groupName)
+        // {
+        //     var user =  await _repo.GetUserWithGroup(id, groupName);
+        //     return user;
+
+        // }
+
+        [HttpPost("addPhotoForGroup")]
+        public async Task<IActionResult> AddPhotoForGroup(int userId, string groupName,
+                        [FromForm]PhotoForCreationDto photoForCreationDto)
+        {
+            if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+                return Unauthorized();
+            var userFromRepo = await _repo.GetUserWithGroup(userId, groupName);
+
+            var file = photoForCreationDto.File;
+            var uploadResult = new ImageUploadResult();
+
+            if (file.Length > 0)
+            {
+                using (var stream = file.OpenReadStream())
+                {
+                    var uploadParams = new ImageUploadParams()
+                    {
+                        File = new FileDescription(file.Name, stream),
+                        Transformation = new Transformation().Width(500).Height(500)
+                                                .Crop("fill").Gravity("face")
+                    };
+
+                    uploadResult = _cloudinary.Upload(uploadParams);
+                }
+
+            }
+            photoForCreationDto.Url = uploadResult.Uri.ToString();
+            photoForCreationDto.PublicId = uploadResult.PublicId;
+
+            var photo = _mapper.Map<Photo>(photoForCreationDto);
+
+            int grpId = _groupRepo.GetGroupId(groupName);
+            photo.GroupId = grpId;
+
+            //if (!userFromRepo.Photos.Any(u => u.IsMain))
+            photo.IsMain = true;
+
+            //userFromRepo.Photos.Add(photo);
+            var usergroup = userFromRepo.UserGroups.FirstOrDefault( k => k.GroupId == grpId);
+            var group = usergroup.Group;
+            group.ImageUrl = photo.Url;
+            
+            
+
+            if (await _repo.SaveAll())
+            {
+                var photoToRetun = _mapper.Map<PhotoForReturnDto>(photo);
+                return CreatedAtRoute("GetPhoto", new { id = photo.Id }, photoToRetun);
+            }
+
+            return BadRequest("Could not add the photo.");
+        }
+
 
         [HttpPost("{id}/setMain")]
         public async Task<IActionResult> SetMainPhoto(int userId, int id)
@@ -102,12 +170,12 @@ namespace MyFriendsApp.API.Controllers
                 return Unauthorized();
             var user = await _repo.GetUser(userId);
 
-            if(!user.Photos.Any(kp => kp.Id == id))
+            if (!user.Photos.Any(kp => kp.Id == id))
                 return Unauthorized();
 
             var photoFromRepo = await _repo.GetPhoto(id);
 
-            if(photoFromRepo.IsMain)
+            if (photoFromRepo.IsMain)
                 return BadRequest("This is already the main photo.");
 
             var currentMainPhoto = await _repo.GetMainPhotoForUser(userId);
@@ -115,7 +183,7 @@ namespace MyFriendsApp.API.Controllers
             currentMainPhoto.IsMain = false;
             photoFromRepo.IsMain = true;
 
-            if(await _repo.SaveAll())
+            if (await _repo.SaveAll())
                 return NoContent();
 
             return BadRequest("Could not set photo to main.");
@@ -147,7 +215,7 @@ namespace MyFriendsApp.API.Controllers
                 }
             }
 
-            if(photoFromRepo.PublicId == null)
+            if (photoFromRepo.PublicId == null)
             {
                 _repo.Delete(photoFromRepo);
             }
@@ -155,7 +223,7 @@ namespace MyFriendsApp.API.Controllers
             if (await _repo.SaveAll())
                 return Ok();
 
-                return BadRequest("Failed to delete the photo.");
+            return BadRequest("Failed to delete the photo.");
         }
     }
 }

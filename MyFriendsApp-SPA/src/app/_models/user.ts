@@ -4,8 +4,9 @@ export interface User {
   id: number;
   userName: string;
   knownAs: string;
-  age: number;
-  gender: string;
+  age?: number;
+  gender?: string;
+  iGroup?: boolean;
   created: Date;
   lastActive: Date;
   photoUrl: string;
@@ -16,5 +17,5 @@ export interface User {
   lookingFor?: string;
   photos?: Photo[];
   roles?: string[];
-  myGroups: string[];
+  myGroups?: string[];
 }

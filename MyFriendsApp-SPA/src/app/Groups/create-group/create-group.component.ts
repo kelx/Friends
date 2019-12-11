@@ -5,10 +5,10 @@ import { AuthService } from 'src/app/_services/auth.service';
 import { UserService } from 'src/app/_services/user.service';
 import { ActivatedRoute } from '@angular/router';
 import { AlertifyService } from 'src/app/_services/alertify.service';
-// import { CreateComponentOptions } from '@angular/core/src/render3/component';
 import { CreateGroup } from 'src/app/_models/createGroup';
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
-import { empty } from 'rxjs';
+import { FileUploader } from 'ng2-file-upload';
+import { Photo } from 'src/app/_models/photo';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-create-group',
@@ -21,7 +21,13 @@ export class CreateGroupComponent implements OnInit {
   pagination: Pagination;
   likesParam: string;
   createGroup: CreateGroup = {};
-  //var bsMsgSend: Message = {};
+  // var bsMsgSend: Message = {};
+
+  baseUrl = environment.apiUrl;
+
+  photos: Photo[];
+  uploader: FileUploader;
+  hasBaseDropZoneOver = false;
 
   constructor(private authService: AuthService, private userService: UserService,
     private route: ActivatedRoute, private alertify: AlertifyService) { }
@@ -34,6 +40,11 @@ export class CreateGroupComponent implements OnInit {
       this.likesParam = 'likers';
       this.createGroup.groupName = 'Something';
       this.createGroup.groupMembers = [];
+
+      this.InitializeUploader();
+    }
+    fileOverBase(e: any): void {
+      this.hasBaseDropZoneOver = e;
     }
 
     pageChanged(event: any): void {
@@ -64,6 +75,40 @@ export class CreateGroupComponent implements OnInit {
       this.userService.createGroupWithUsers(this.createGroup).subscribe(res => {
         console.log(res);
       });
+    }
+
+    // file upload section
+    InitializeUploader() {
+      this.uploader = new FileUploader({
+        url: this.baseUrl + 'users/' + this.authService.decodedToken.nameid + '/photos',
+        authToken: 'Bearer ' + localStorage.getItem('token'),
+        isHTML5: true,
+        allowedFileType: ['image'],
+        removeAfterUpload: true,
+        autoUpload: false,
+        maxFileSize: 5 * 1024 * 1024
+      });
+      this.uploader.onAfterAddingFile = (kfile) => {
+        kfile.withCredentials = false;
+      };
+      this.uploader.onSuccessItem = (item, response, status, headers) => {
+        if(response) {
+          const res: Photo = JSON.parse(response);
+          const photo = {
+            id: res.id,
+            url: res.url,
+            dateAdded: res.dateAdded,
+            description: res.description,
+            isMain: res.isMain
+          };
+          this.photos.push(photo);
+          if (photo.isMain) {
+            this.authService.changeMemberPhoto(photo.url);
+            this.authService.currentUser.photoUrl = photo.url;
+            localStorage.setItem('user', JSON.stringify(this.authService.currentUser));
+          }
+        }
+      };
     }
 
 

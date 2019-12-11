@@ -250,6 +250,53 @@ namespace MyFriendsApp.API.Controllers
         }
 
 
+        [HttpPost("createGroupMessage/{userId}/{groupName}/{message}")]
+        public async Task<IActionResult> CreateGroupMessage(int userId, string groupName, string message)
+        {
+            var loggedInUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            if (userId != loggedInUserId)
+                return Unauthorized();
+            var user = await _userManager.Users
+                                .Include(k => k.UserGroups).ThenInclude(kk => kk.Group).ThenInclude(kk => kk.GroupMessages)
+                                .FirstOrDefaultAsync(qq => qq.Id == userId);
+            if (user == null)
+                return BadRequest("User doesnt exist");
+
+            // check if currently LoggedIn User already a member of the group
+
+            bool isCurrentlyLoggedinUserAMemberAlready = await _groupRepo.CheckUserInGroup(user.Id, groupName);
+            if (!isCurrentlyLoggedinUserAMemberAlready)
+                return BadRequest("User not in group");
+
+            //get group
+
+            var userGroups = user.UserGroups;
+
+            var grp = userGroups.
+                        FirstOrDefault(k => k.Group.Name == groupName).Group;
+
+            // var grp = (from n in grp
+            //             Include(kk => kk.Group).ThenInclude(qq => qq.GroupMessages))
+            //             select n.Group;
+
+            var mesge = new Message();
+            mesge.Sender = user;
+            mesge.Content = message;
+            mesge.GroupMessage = grp;
+            mesge.Recipient = user;
+
+            _dataContext.Messages.Add(mesge);
+            _dataContext.SaveChanges();
+            grp.GroupMessages.Add(mesge);
+
+
+            await _userManager.UpdateAsync(user);
+
+            return BadRequest("Failed to send message");
+
+        }
+
+
 
     }
 }

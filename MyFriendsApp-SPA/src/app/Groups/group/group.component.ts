@@ -16,7 +16,7 @@ newUsers: {};
   ngOnInit() {
     this.userService.groupGetAllUsers().subscribe(res => {
         this.users = res;
-        console.log(this.users);
+        console.log(this.users.group);
       });
   }
 

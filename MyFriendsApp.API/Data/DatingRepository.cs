@@ -11,8 +11,10 @@ namespace MyFriendsApp.API.Data
     public class DatingRepository : IDatingRepository
     {
         private readonly DataContext _context;
-        public DatingRepository(DataContext context)
+        private readonly IGroupRepository _groupRepo;
+        public DatingRepository(DataContext context, IGroupRepository groupRepo)
         {
+            _groupRepo = groupRepo;
             this._context = context;
 
         }
@@ -32,7 +34,7 @@ namespace MyFriendsApp.API.Data
 
         public async Task<Like> GetLike(int userId, int recipientId)
         {
-            return await _context.Likes.FirstOrDefaultAsync(k => 
+            return await _context.Likes.FirstOrDefaultAsync(k =>
                 k.LikerId == userId && k.LikeeId == recipientId);
         }
 
@@ -55,7 +57,7 @@ namespace MyFriendsApp.API.Data
         }
         public async Task<IEnumerable<User>> GetUsers(int userId)
         {
-            var users = await  _context.Users.Include(p => p.Photos)
+            var users = await _context.Users.Include(p => p.Photos)
                             .Where(kkk => kkk.Id != userId).ToListAsync();
             return users;
         }
@@ -68,27 +70,27 @@ namespace MyFriendsApp.API.Data
 
             users = users.Where(k => k.Gender == userParams.Gender);
 
-            if(userParams.Likers)
+            if (userParams.Likers)
             {
                 var userLikers = await GetUserLikes(userParams.UserId, userParams.Likers);
                 users = users.Where(u => userLikers.Contains(u.Id));
             }
-            if(userParams.Likees)
+            if (userParams.Likees)
             {
                 var userLikees = await GetUserLikes(userParams.UserId, userParams.Likers);
                 users = users.Where(u => userLikees.Contains(u.Id));
 
             }
 
-            if(userParams.MinAge != 18 || userParams.MaxAge != 99)
+            if (userParams.MinAge != 18 || userParams.MaxAge != 99)
             {
                 var minDOB = DateTime.Today.AddYears(-userParams.MaxAge - 1);
                 var maxDob = DateTime.Today.AddYears(-userParams.MinAge);
                 users = users.Where(k => k.DateOfBirth >= minDOB && k.DateOfBirth <= maxDob);
             }
-            if(!string.IsNullOrEmpty(userParams.OrderBy))
+            if (!string.IsNullOrEmpty(userParams.OrderBy))
             {
-                switch(userParams.OrderBy)
+                switch (userParams.OrderBy)
                 {
                     case "created":
                         users = users.OrderByDescending(k => k.Created);
@@ -108,7 +110,7 @@ namespace MyFriendsApp.API.Data
                 .Include(x => x.Likers)
                 .Include(x => x.Likees)
                 .FirstOrDefaultAsync(x => x.Id == id);
-            if(likers)
+            if (likers)
             {
                 return users.Likers.Where(u => u.LikeeId == id).Select(i => i.LikerId);
             }
@@ -163,8 +165,27 @@ namespace MyFriendsApp.API.Data
                     k.RecipientId == recipientId && k.SenderId == userId && k.SenderDeleted == false)
                 .OrderByDescending(k => k.MessageSent)
                 .ToListAsync();
-            
+
             return messages;
+        }
+
+        
+
+        public async Task<User> GetUserWithGroup(int userId, string groupName)
+        {
+            
+            int groupId = _groupRepo.GetGroupId(groupName);
+
+            var user = await _context.Users.
+                            Include(p => p.Photos).
+                            Include(q => q.UserGroups).ThenInclude(q => q.Group).
+                            Where(l => l.UserGroups.Any(m => m.GroupId == groupId)).
+                            FirstOrDefaultAsync(k => k.Id == userId);
+            //var groups = await _groupRepo.GetUserGroupsAsync(userId);
+            //var group = groups.Where(k => k.Name == groupName);
+            
+
+            return user;
         }
     }
 }

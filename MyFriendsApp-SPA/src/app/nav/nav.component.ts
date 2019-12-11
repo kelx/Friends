@@ -12,6 +12,7 @@ export class NavComponent implements OnInit {
 model: any = {};
 photoUrl: string;
 myGroups: string[] = [];
+currentGroup = 'My Group';
 
   constructor(private authService: AuthService, private alertify: AlertifyService,
               private router: Router) { }
@@ -49,5 +50,9 @@ myGroups: string[] = [];
     this.alertify.message('logged out');
     this.router.navigate(['/home']);
     this.model = {};
+  }
+  changeGroupHeading(groupName: string)
+  {
+    this.currentGroup = ('My Group' + ' (' + groupName + ')').toLowerCase();
   }
 }

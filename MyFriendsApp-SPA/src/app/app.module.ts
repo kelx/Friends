@@ -42,6 +42,7 @@ import { RolesModalComponent } from './admin/roles-modal/roles-modal.component';
 import { GroupComponent } from './Groups/group/group.component';
 import { CreateGroupComponent } from './Groups/create-group/create-group.component';
 import { GroupMemberCardComponent } from './Groups/group-member-card/group-member-card.component';
+import { ListWithGroupsComponent } from './ListWithGroups/List-With-Groups/List-With-Groups.component';
 
 
 
@@ -71,7 +72,8 @@ export function tokenGetter() {
       RolesModalComponent,
       GroupComponent,
       CreateGroupComponent,
-      GroupMemberCardComponent
+      GroupMemberCardComponent,
+      ListWithGroupsComponent
    ],
    imports: [
       BrowserModule,
