@@ -133,6 +133,26 @@ namespace MyFriendsApp.API.Controllers
 
         }
 
+        [HttpGet("getUserMessagesFromGroup/{id}/{groupName}")]
+        public async Task<IActionResult> GetUserMessagesFromGroup(int id, string groupName)
+        {
+
+            var loggedInUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            if (id != loggedInUserId)
+                return Unauthorized();
+
+            bool  isCurrentlUserAMemberAlready = await _groupRepo.CheckUserInGroup(id, groupName);
+            if(!isCurrentlUserAMemberAlready)
+                return BadRequest("User not in group");
+            
+            var messages = await _groupRepo.GetUserMessagesInGroup(id, groupName);
+            if(messages != null)
+                return Ok(messages);
+
+            return BadRequest("Could not find messages");
+
+        }
+
 
 
         [HttpPost("createGroupWithUsers")]
@@ -249,6 +269,8 @@ namespace MyFriendsApp.API.Controllers
 
         }
 
+        
+
 
         [HttpPost("createGroupMessage/{userId}/{groupName}/{message}")]
         public async Task<IActionResult> CreateGroupMessage(int userId, string groupName, string message)
@@ -285,12 +307,15 @@ namespace MyFriendsApp.API.Controllers
             mesge.GroupMessage = grp;
             mesge.Recipient = user;
 
-            _dataContext.Messages.Add(mesge);
-            _dataContext.SaveChanges();
+            _dataContext.Messages.Add(mesge); // comeback here nad comment
+            _dataContext.SaveChanges();         // come back here and comment and see
             grp.GroupMessages.Add(mesge);
 
 
-            await _userManager.UpdateAsync(user);
+            var succeed = await _userManager.UpdateAsync(user);
+
+            if(succeed.Succeeded)
+                return Ok("Sent message successfully");
 
             return BadRequest("Failed to send message");
 

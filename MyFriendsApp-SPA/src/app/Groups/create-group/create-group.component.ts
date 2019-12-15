@@ -80,7 +80,7 @@ export class CreateGroupComponent implements OnInit {
     // file upload section
     InitializeUploader() {
       this.uploader = new FileUploader({
-        url: this.baseUrl + 'users/' + this.authService.decodedToken.nameid + '/photos',
+        url: this.baseUrl + 'users/' + this.authService.decodedToken.nameid + '/photos' + '/addPhotoForGroup',
         authToken: 'Bearer ' + localStorage.getItem('token'),
         isHTML5: true,
         allowedFileType: ['image'],
@@ -99,7 +99,8 @@ export class CreateGroupComponent implements OnInit {
             url: res.url,
             dateAdded: res.dateAdded,
             description: res.description,
-            isMain: res.isMain
+            isMain: res.isMain,
+            groupId: res.groupId
           };
           this.photos.push(photo);
           if (photo.isMain) {

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace MyFriendsApp.API.Migrations
 {
-    public partial class Intiial : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -184,6 +184,7 @@ namespace MyFriendsApp.API.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(nullable: true),
+                    ImageUrl = table.Column<string>(nullable: true),
                     UserId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>

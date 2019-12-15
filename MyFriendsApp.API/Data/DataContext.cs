@@ -113,6 +113,13 @@ namespace MyFriendsApp.API.Data
             .HasOne(k => k.GroupMessage)
             .WithMany(k => k.GroupMessages)
             .OnDelete(DeleteBehavior.Restrict);
+            
+            //  builder.Entity<Photo>().HasKey(k => k.Id);
+            //  builder.Entity<Photo>()
+            // .HasOne(k => k.Group)
+            // .WithMany(k => k.GroupPhotos)
+            // .HasForeignKey(k => k.UserId)
+            // .OnDelete(DeleteBehavior.Restrict);
 
         }
     }

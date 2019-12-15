@@ -391,7 +391,7 @@ namespace MyFriendsApp.API.Migrations
 
             modelBuilder.Entity("MyFriendsApp.API.Models.Photo", b =>
                 {
-                    b.HasOne("MyFriendsApp.API.Models.User", "user")
+                    b.HasOne("MyFriendsApp.API.Models.User", "User")
                         .WithMany("Photos")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);

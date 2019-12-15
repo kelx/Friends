@@ -9,8 +9,8 @@ using MyFriendsApp.API.Data;
 namespace MyFriendsApp.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20191206195721_Intiial")]
-    partial class Intiial
+    [Migration("20191214131046_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -90,6 +90,8 @@ namespace MyFriendsApp.API.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<string>("ImageUrl");
 
                     b.Property<string>("Name");
 
@@ -391,7 +393,7 @@ namespace MyFriendsApp.API.Migrations
 
             modelBuilder.Entity("MyFriendsApp.API.Models.Photo", b =>
                 {
-                    b.HasOne("MyFriendsApp.API.Models.User", "user")
+                    b.HasOne("MyFriendsApp.API.Models.User", "User")
                         .WithMany("Photos")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);

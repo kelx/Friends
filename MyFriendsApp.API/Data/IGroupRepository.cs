@@ -18,5 +18,6 @@ namespace MyFriendsApp.API.Data
         Task<bool> CreateUserGroupnUserRole(User user, string groupName, bool iShallbeAdmin);
         Task<IEnumerable<Group>> GetUserGroupsAsync(int id);
         Task<Group> AddUsersToGroup(User user, Group group, ICollection<string> groupMembers);
+        Task<IEnumerable<string>> GetUserMessagesInGroup(int id, string groupName);
     }
 }

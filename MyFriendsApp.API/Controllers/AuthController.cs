@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 
+
 namespace MyFriendsApp.API.Controllers
 {
     [AllowAnonymous]

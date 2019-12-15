@@ -11,6 +11,7 @@ using MyFriendsApp.API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Identity;
 
 namespace MyFriendsApp.API.Controllers
 {
@@ -23,11 +24,13 @@ namespace MyFriendsApp.API.Controllers
         private readonly IMapper _mapper;
         private readonly IOptions<CloudinarySettings> _cloudinaryConfig;
         private readonly IGroupRepository _groupRepo;
+        private readonly UserManager<User> _userManager;
 
         private Cloudinary _cloudinary;
-        public PhotosController(IDatingRepository repo, IGroupRepository groupRepo, IMapper mapper,
+        public PhotosController(IDatingRepository repo, IGroupRepository groupRepo, IMapper mapper, UserManager<User> userManager,
             IOptions<CloudinarySettings> cloudinaryConfig)
         {
+            _userManager = userManager;
             _groupRepo = groupRepo;
             _cloudinaryConfig = cloudinaryConfig;
             _mapper = mapper;
@@ -109,58 +112,59 @@ namespace MyFriendsApp.API.Controllers
 
         // }
 
-        [HttpPost("addPhotoForGroup")]
-        public async Task<IActionResult> AddPhotoForGroup(int userId, string groupName,
-                        [FromForm]PhotoForCreationDto photoForCreationDto)
-        {
-            if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
-                return Unauthorized();
-            var userFromRepo = await _repo.GetUserWithGroup(userId, groupName);
+        // [HttpPost("addPhotoForGroup")]
+        // public async Task<IActionResult> AddPhotoForGroup(int userId, string groupName,
+        //                 [FromForm]PhotoForCreationDto photoForCreationDto)
+        // {
+        //     if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+        //         return Unauthorized();
+        //     var userFromRepo = await _repo.GetUserWithGroup(userId, "KelFamily");
 
-            var file = photoForCreationDto.File;
-            var uploadResult = new ImageUploadResult();
+        //     var file = photoForCreationDto.File;
+        //     var uploadResult = new ImageUploadResult();
 
-            if (file.Length > 0)
-            {
-                using (var stream = file.OpenReadStream())
-                {
-                    var uploadParams = new ImageUploadParams()
-                    {
-                        File = new FileDescription(file.Name, stream),
-                        Transformation = new Transformation().Width(500).Height(500)
-                                                .Crop("fill").Gravity("face")
-                    };
+        //     if (file.Length > 0)
+        //     {
+        //         using (var stream = file.OpenReadStream())
+        //         {
+        //             var uploadParams = new ImageUploadParams()
+        //             {
+        //                 File = new FileDescription(file.Name, stream),
+        //                 Transformation = new Transformation().Width(500).Height(500)
+        //                                         .Crop("fill").Gravity("face")
+        //             };
 
-                    uploadResult = _cloudinary.Upload(uploadParams);
-                }
+        //             uploadResult = _cloudinary.Upload(uploadParams);
+        //         }
 
-            }
-            photoForCreationDto.Url = uploadResult.Uri.ToString();
-            photoForCreationDto.PublicId = uploadResult.PublicId;
+        //     }
+        //     photoForCreationDto.Url = uploadResult.Uri.ToString();
+        //     photoForCreationDto.PublicId = uploadResult.PublicId;
 
-            var photo = _mapper.Map<Photo>(photoForCreationDto);
+        //     var photo = _mapper.Map<Photo>(photoForCreationDto);
 
-            int grpId = _groupRepo.GetGroupId(groupName);
-            photo.GroupId = grpId;
+        //     int grpId = _groupRepo.GetGroupId("KelFamily");  // repeats twice and need to get in group name
+        //     photo.GroupId = grpId;
 
-            //if (!userFromRepo.Photos.Any(u => u.IsMain))
-            photo.IsMain = true;
+        //     //if (!userFromRepo.Photos.Any(u => u.IsMain))
+        //     photo.IsMain = true;
 
-            //userFromRepo.Photos.Add(photo);
-            var usergroup = userFromRepo.UserGroups.FirstOrDefault( k => k.GroupId == grpId);
-            var group = usergroup.Group;
-            group.ImageUrl = photo.Url;
-            
-            
+        //     //userFromRepo.Photos.Add(photo);
+        //     var usergroup = userFromRepo.UserGroups.FirstOrDefault(k => k.GroupId == grpId);
+        //     var group = usergroup.Group;
+        //     group.ImageUrl = photo.Url;
+        //     group.GroupPhotos.Add(photo);
 
-            if (await _repo.SaveAll())
-            {
-                var photoToRetun = _mapper.Map<PhotoForReturnDto>(photo);
-                return CreatedAtRoute("GetPhoto", new { id = photo.Id }, photoToRetun);
-            }
+        //     var succeed = await _userManager.UpdateAsync(userFromRepo);
 
-            return BadRequest("Could not add the photo.");
-        }
+        //     if (succeed.Succeeded)
+        //     {
+        //             var photoToRetun = _mapper.Map<PhotoForReturnDto>(photo);
+        //             return CreatedAtRoute("GetPhoto", new { id = photo.Id }, photoToRetun);
+        //     }
+
+        //     return BadRequest("Could not add the photo.");
+        // }
 
 
         [HttpPost("{id}/setMain")]

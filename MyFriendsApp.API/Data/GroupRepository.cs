@@ -235,6 +235,7 @@ namespace MyFriendsApp.API.Data
         {
             var appUser = await _userManager.Users
                     .Include(k => k.UserGroups).ThenInclude(kk => kk.Group).ThenInclude(kk => kk.GroupRoles)
+                    
                     .FirstOrDefaultAsync(kk => kk.Id == id);
             
             //get group name from groups
@@ -253,6 +254,30 @@ namespace MyFriendsApp.API.Data
         public int GetGroupId(string groupName)
         {
             return _dataContext.Groups.FirstOrDefault(k => k.Name == groupName).Id;
+        }
+
+        public async Task<IEnumerable<string>> GetUserMessagesInGroup(int id, string groupName)
+        {
+            //int grpId = GetGroupId(groupName);
+                    var user = await _userManager.Users
+                                .Include(k => k.UserGroups).ThenInclude(kk => kk.Group).ThenInclude(kk => kk.GroupMessages)
+                                .FirstOrDefaultAsync(qq => qq.Id == id);
+
+            // check if currently LoggedIn User already a member of the group
+
+            //get group
+
+            var userGroups = user.UserGroups;
+
+            var grp = userGroups.
+                        FirstOrDefault(k => k.Group.Name == groupName).Group;
+
+            List<string> messages = new List<string>();
+            foreach(var m in grp.GroupMessages)
+            {
+                messages.Add(m.Content);
+            }
+            return messages;
         }
     }
 }
