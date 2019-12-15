@@ -307,8 +307,8 @@ namespace MyFriendsApp.API.Controllers
             mesge.GroupMessage = grp;
             mesge.Recipient = user;
 
-            _dataContext.Messages.Add(mesge); // comeback here nad comment
-            _dataContext.SaveChanges();         // come back here and comment and see
+            // _dataContext.Messages.Add(mesge); // comeback here nad comment
+            // _dataContext.SaveChanges();         // come back here and comment and see
             grp.GroupMessages.Add(mesge);
 
 
